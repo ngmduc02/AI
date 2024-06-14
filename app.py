@@ -91,39 +91,3 @@ custom_pred_label = label_encoder.inverse_transform(custom_pred)
 
 # Hiển thị kết quả dự đoán
 st.write("Giai đoạn:", custom_pred_label[0])
-
-# Giao diện thêm dữ liệu mới
-st.header("Thêm data mới để dự đoán")
-
-new_data = {}
-for feature in X.columns:
-    if feature == 'Age':
-        new_data[feature] = st.number_input(f"Input {feature} (years)", key=f"{feature}_new_input")
-    elif df_original[feature].dtype in [int, float]:
-        new_data[feature] = st.number_input(f"Input {feature}", key=f"{feature}_new_input")
-    else:
-        new_data[feature] = st.selectbox(f"Input {feature}", options=list(df_original[feature].unique()), key=f"{feature}_new_select")
-
-# Kiểm tra nếu có dữ liệu mới được nhập
-if st.button("Dự đoán của data mới"):
-    # Tạo DataFrame từ dữ liệu mới
-    new_df = pd.DataFrame([new_data])
-
-    # Mã hóa các giá trị đầu vào
-    for feature in categorical_features:
-        if feature in new_df.columns:
-            le = le_dict[feature]
-            new_df[feature] = le.transform(new_df[feature])
-
-    # Chuyển đổi tuổi từ năm sang ngày
-    new_df['Age'] = new_df['Age'] * 365.25
-
-    # Chuẩn hóa các giá trị đầu vào
-    new_df_scaled = scaler.transform(new_df)
-
-    # Dự đoán nhãn với dữ liệu mới
-    new_pred = lgbm.predict(new_df_scaled)
-    new_pred_label = label_encoder.inverse_transform(new_pred)
-
-    # Hiển thị kết quả dự đoán
-    st.write("Giai đoạn:", new_pred_label[0])
